@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แดชบอร์ดผลการเรียน ม.3/11 | โรงเรียนโยธินบำรุง</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --nav:#111c44; --nav2:#1b2559; --brand:#4318ff; --brand2:#6c4bff;
+  --bg:#f4f7fe; --card:#ffffff; --txt:#2b3674; --muted:#a3aed0;
+  --green:#05cd99; --orange:#ffb547; --red:#ee5d50; --blue:#4318ff; --cyan:#39b8ff;
+  --shadow:0 18px 40px rgba(112,144,176,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans Thai',sans-serif;background:var(--bg);color:var(--txt);display:flex;min-height:100vh}
+/* ---------- SIDEBAR ---------- */
+.sidebar{width:270px;background:var(--nav);color:#fff;padding:26px 0;position:fixed;top:0;bottom:0;left:0;overflow-y:auto;transition:.3s;z-index:60}
+.brand{display:flex;align-items:center;gap:12px;padding:0 24px 22px;border-bottom:1px solid rgba(255,255,255,.08)}
+.brand .logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--brand),var(--cyan));display:grid;place-items:center;font-weight:800;font-size:17px}
+.brand h1{font-size:16px;font-weight:700;line-height:1.3}
+.brand span{font-size:11px;color:var(--muted);font-weight:400}
+.menu{list-style:none;padding:18px 14px}
+.menu li{margin-bottom:6px}
+.menu button{width:100%;display:flex;align-items:center;gap:12px;background:none;border:0;color:#b6c0e0;font-family:inherit;font-size:14.5px;font-weight:500;padding:12px 16px;border-radius:12px;cursor:pointer;text-align:left;transition:.2s}
+.menu button:hover{background:rgba(255,255,255,.07);color:#fff}
+.menu button.active{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;font-weight:600;box-shadow:0 8px 20px rgba(67,24,255,.4)}
+.menu .ico{width:22px;text-align:center;font-size:16px}
+.side-foot{padding:16px 24px;font-size:11.5px;color:var(--muted);line-height:1.7}
+/* ---------- MAIN ---------- */
+.main{margin-left:270px;flex:1;padding:24px 30px 60px;transition:.3s}
+.topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;background:#fff;border-radius:18px;padding:16px 22px;box-shadow:var(--shadow);margin-bottom:24px}
+.topbar h2{font-size:20px;font-weight:700}
+.topbar .crumb{font-size:12px;color:var(--muted)}
+.topbar .right{display:flex;align-items:center;gap:10px}
+.pill{background:var(--bg);border-radius:30px;padding:8px 16px;font-size:12.5px;font-weight:500;color:var(--txt)}
+.burger{display:none;background:var(--brand);color:#fff;border:0;border-radius:10px;width:38px;height:38px;font-size:17px;cursor:pointer}
+/* cards */
+.grid{display:grid;gap:20px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(215px,1fr));margin-bottom:22px}
+.kpi{background:var(--card);border-radius:18px;padding:18px 20px;box-shadow:var(--shadow);display:flex;align-items:center;gap:15px}
+.kpi .ic{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-size:21px;background:var(--bg);flex:none}
+.kpi small{color:var(--muted);font-size:12.5px;font-weight:500;display:block}
+.kpi b{font-size:23px;font-weight:700;display:block;line-height:1.35}
+.kpi .sub{font-size:11px;color:var(--muted)}
+.card{background:var(--card);border-radius:18px;padding:20px 22px;box-shadow:var(--shadow)}
+.card h3{font-size:16px;font-weight:700;margin-bottom:4px}
+.card .desc{font-size:12px;color:var(--muted);margin-bottom:14px}
+.c2{grid-template-columns:1.35fr 1fr}
+.c2b{grid-template-columns:1fr 1fr}
+.chart-box{position:relative;height:300px}
+.chart-tall{position:relative;height:430px}
+/* table */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;color:var(--muted);font-weight:600;font-size:12px;padding:11px 10px;border-bottom:1px solid #e9edf7;white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{color:var(--brand)}
+td{padding:11px 10px;border-bottom:1px solid #f1f4fa;white-space:nowrap}
+tbody tr{cursor:pointer;transition:.15s}
+tbody tr:hover{background:#f8faff}
+.badge{padding:3px 11px;border-radius:20px;font-size:11.5px;font-weight:600;display:inline-block}
+.b-green{background:#e6faf5;color:#05a87d}.b-blue{background:#eceaff;color:#4318ff}
+.b-orange{background:#fff5e5;color:#e08a00}.b-red{background:#ffeceb;color:#d53f33}
+.b-gray{background:#eef1f8;color:#8f9bba}
+.bar{height:7px;border-radius:6px;background:#eef1f8;min-width:80px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:6px}
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+input[type=search],select{font-family:inherit;font-size:13px;padding:9px 14px;border:1px solid #e3e8f4;border-radius:11px;color:var(--txt);outline:none;background:#fff}
+input[type=search]:focus,select:focus{border-color:var(--brand)}
+.btn{font-family:inherit;font-size:13px;font-weight:600;padding:9px 18px;border:0;border-radius:11px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;cursor:pointer;box-shadow:0 8px 18px rgba(67,24,255,.25)}
+.btn.ghost{background:#fff;color:var(--brand);border:1px solid #ddd8ff;box-shadow:none}
+.btn:hover{opacity:.9}
+.view{display:none;animation:fade .35s}
+.view.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:12px}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(17,28,68,.55);display:none;place-items:center;z-index:100;padding:20px}
+.modal.on{display:grid}
+.modal-in{background:#fff;border-radius:20px;max-width:900px;width:100%;max-height:88vh;overflow-y:auto;padding:26px 28px}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
+.close{background:#f4f7fe;border:0;width:34px;height:34px;border-radius:10px;font-size:17px;cursor:pointer;color:var(--txt)}
+.mini{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-bottom:18px}
+.mini div{background:var(--bg);border-radius:13px;padding:12px 14px}
+.mini small{color:var(--muted);font-size:11.5px}.mini b{font-size:18px}
+.note{background:#fff8e8;border-left:4px solid var(--orange);padding:12px 16px;border-radius:10px;font-size:12.5px;color:#7a6224;line-height:1.7;margin-top:16px}
+@media(max-width:1100px){.c2,.c2b{grid-template-columns:1fr}}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:none}
+  .main{margin-left:0;padding:16px}.burger{display:block}
+}
+@media print{.sidebar,.burger,.tools,.btn{display:none}.main{margin:0}.view{display:block!important}}
+</style>
+</head>
+<body>
+
+<aside class="sidebar" id="sb">
+  <div class="brand">
+    <div class="logo">ยธ</div>
+    <div><h1>โยธินบำรุง</h1><span>ระบบสารสนเทศผู้บริหาร</span></div>
+  </div>
+  <ul class="menu" id="menu">
+    <li><button data-v="overview" class="active"><span class="ico">◉</span> ภาพรวมห้องเรียน</button></li>
+    <li><button data-v="subjects"><span class="ico">▤</span> วิเคราะห์รายวิชา</button></li>
+    <li><button data-v="areas"><span class="ico">◈</span> กลุ่มสาระการเรียนรู้</button></li>
+    <li><button data-v="students"><span class="ico">☰</span> นักเรียนรายบุคคล</button></li>
+    <li><button data-v="activity"><span class="ico">✚</span> กิจกรรมพัฒนาผู้เรียน</button></li>
+    <li><button data-v="risk"><span class="ico">⚠</span> กลุ่มเสี่ยง / ต้องดูแล</button></li>
+    <li><button data-v="report"><span class="ico">⇩</span> รายงาน &amp; ส่งออก</button></li>
+  </ul>
+  <div class="side-foot">
+    ปีการศึกษา 2569 · ภาคเรียนที่ 1<br>ชั้น ม.3/11 · นักเรียน 29 คน<br>
+    ครูที่ปรึกษา: นางวิชุดา เวชสารศรี,<br>นายจิรพันธ์ บัวแก้ว
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="burger" onclick="document.getElementById('sb').classList.toggle('open')">☰</button>
+      <div><h2 id="vTitle">ภาพรวมห้องเรียน</h2><div class="crumb" id="vCrumb">หน้าแรก / ภาพรวม</div></div>
+    </div>
+    <div class="right">
+      <span class="pill">📘 ม.3/11</span>
+      <span class="pill">🗓 ภาคเรียน 1/2569</span>
+      <span class="pill">👥 29 คน</span>
+    </div>
+  </div>
+
+  <!-- ============ OVERVIEW ============ -->
+  <section class="view on" id="v-overview">
+    <div class="grid kpis" id="kpis"></div>
+    <div class="grid c2" style="margin-bottom:20px">
+      <div class="card"><h3>การกระจายของผลการเรียนเฉลี่ย (GPA)</h3><div class="desc">จำนวนนักเรียนแยกตามช่วง GPA</div><div class="chart-box"><canvas id="ch1"></canvas></div></div>
+      <div class="card"><h3>สัดส่วนระดับผลการเรียน</h3><div class="desc">นับทุกรายวิชา ทุกคน (522 รายการ)</div><div class="chart-box"><canvas id="ch2"></canvas></div></div>
+    </div>
+    <div class="grid c2b" style="margin-bottom:20px">
+      <div class="card"><h3>10 อันดับผลการเรียนสูงสุด</h3><div class="desc">เรียงตาม GPA</div><div class="chart-box"><canvas id="ch3"></canvas></div></div>
+      <div class="card"><h3>ค่าเฉลี่ยรายกลุ่มสาระ</h3><div class="desc">เทียบ 8 กลุ่มสาระการเรียนรู้</div><div class="chart-box"><canvas id="ch4"></canvas></div></div>
+    </div>
+    <div class="card"><h3>ค่าเฉลี่ยรายวิชาทั้ง 18 วิชา</h3><div class="desc">สีแดง = ต่ำกว่า 3.00 ควรเร่งพัฒนา</div><div class="chart-tall"><canvas id="ch5"></canvas></div></div>
+  </section>
+
+  <!-- ============ SUBJECTS ============ -->
+  <section class="view" id="v-subjects">
+    <div class="card" style="margin-bottom:20px">
+      <h3>ตารางวิเคราะห์รายวิชา</h3><div class="desc">คลิกหัวคอลัมน์เพื่อเรียงลำดับ · คลิกแถวเพื่อดูการกระจายเกรดของวิชานั้น</div>
+      <div class="tools">
+        <select id="fArea"><option value="">— ทุกกลุ่มสาระ —</option></select>
+        <select id="fType"><option value="">— ทุกประเภทวิชา —</option><option>พื้นฐาน</option><option>เพิ่มเติม</option></select>
+      </div>
+      <div class="tbl-wrap"><table id="tSub"><thead><tr>
+        <th data-k="c">รหัสวิชา</th><th data-k="n">ชื่อวิชา</th><th data-k="g">กลุ่มสาระ</th><th data-k="t">ประเภท</th>
+        <th data-k="cr">หน่วยกิต</th><th data-k="avg">ค่าเฉลี่ย</th><th>ระดับ</th>
+        <th data-k="full">ได้ 4 (คน)</th><th data-k="low">ต่ำกว่า 2 (คน)</th><th data-k="zero">ติด 0</th>
+      </tr></thead><tbody></tbody></table></div>
+    </div>
+    <div class="card"><h3 id="subTitle">การกระจายเกรด — เลือกวิชาจากตารางด้านบน</h3><div class="desc">จำนวนนักเรียนในแต่ละระดับผลการเรียน</div><div class="chart-box"><canvas id="ch6"></canvas></div></div>
+  </section>
+
+  <!-- ============ AREAS ============ -->
+  <section class="view" id="v-areas">
+    <div class="grid c2b" style="margin-bottom:20px">
+      <div class="card"><h3>เรดาร์เปรียบเทียบกลุ่มสาระ</h3><div class="desc">ค่าเฉลี่ยห้อง เทียบกับกลุ่มเก่ง (Top 10) และกลุ่มที่ต้องดูแล (Bottom 5)</div><div class="chart-box"><canvas id="ch7"></canvas></div></div>
+      <div class="card"><h3>สัดส่วนหน่วยกิตแต่ละกลุ่มสาระ</h3><div class="desc">รวม 16.0 หน่วยกิต</div><div class="chart-box"><canvas id="ch8"></canvas></div></div>
+    </div>
+    <div class="card"><h3>สรุปรายกลุ่มสาระ</h3><div class="desc">เรียงจากค่าเฉลี่ยสูงไปต่ำ</div>
+      <div class="tbl-wrap"><table id="tArea"><thead><tr><th>กลุ่มสาระการเรียนรู้</th><th>จำนวนวิชา</th><th>หน่วยกิต</th><th>ค่าเฉลี่ย</th><th>ระดับคุณภาพ</th><th>% ได้เกรด 4</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- ============ STUDENTS ============ -->
+  <section class="view" id="v-students">
+    <div class="card">
+      <h3>รายชื่อนักเรียน 29 คน</h3><div class="desc">คลิกที่ชื่อเพื่อดูผลการเรียนรายบุคคล · คลิกหัวคอลัมน์เพื่อเรียงลำดับ</div>
+      <div class="tools">
+        <input type="search" id="q" placeholder="🔍 ค้นหาชื่อ หรือ เลขประจำตัว..." style="min-width:260px">
+        <select id="fBand"><option value="">— ทุกช่วง GPA —</option><option value="4">4.00 (เต็ม)</option><option value="a">3.50 – 3.99</option><option value="b">3.00 – 3.49</option><option value="c">ต่ำกว่า 3.00</option></select>
+        <select id="fSex"><option value="">— ทุกเพศ —</option><option value="ช">ชาย</option><option value="ญ">หญิง</option></select>
+      </div>
+      <div class="tbl-wrap"><table id="tStu"><thead><tr>
+        <th data-k="no">เลขที่</th><th data-k="sid">เลขประจำตัว</th><th data-k="name">ชื่อ-นามสกุล</th><th data-k="sex">เพศ</th>
+        <th data-k="cr">หน่วยกิต</th><th data-k="gpa">GPA</th><th>ระดับ</th><th>กราฟ</th><th data-k="rank">อันดับ</th>
+      </tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- ============ ACTIVITY ============ -->
+  <section class="view" id="v-activity">
+    <div class="grid kpis" id="actKpi" style="margin-bottom:22px"></div>
+    <div class="grid c2b">
+      <div class="card"><h3>จำนวนผู้เข้าร่วมแต่ละกิจกรรม</h3><div class="desc">หน่วย: คน (ผลประเมิน ผ = ผ่าน)</div><div class="chart-box"><canvas id="ch9"></canvas></div></div>
+      <div class="card"><h3>รายละเอียดกิจกรรมพัฒนาผู้เรียน</h3><div class="desc">ทุกกิจกรรมมีผลประเมิน "ผ่าน" 100%</div>
+        <div class="tbl-wrap"><table id="tAct"><thead><tr><th>รหัสกิจกรรม</th><th>ชั่วโมง</th><th>ผู้เข้าร่วม</th><th>ผ่าน</th><th>ผลประเมิน</th></tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RISK ============ -->
+  <section class="view" id="v-risk">
+    <div class="grid kpis" id="riskKpi" style="margin-bottom:22px"></div>
+    <div class="card" style="margin-bottom:20px">
+      <h3>รายการผลการเรียนที่ต้องเฝ้าระวัง (ต่ำกว่า 2.00)</h3><div class="desc">ควรวางแผนซ่อมเสริม/สอนเสริมเป็นรายบุคคล</div>
+      <div class="tbl-wrap"><table id="tRisk"><thead><tr><th>เลขที่</th><th>ชื่อ-นามสกุล</th><th>รหัสวิชา</th><th>ชื่อวิชา</th><th>กลุ่มสาระ</th><th>เกรด</th><th>สถานะ</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <div class="card"><h3>นักเรียนที่ควรได้รับการดูแลเป็นพิเศษ</h3><div class="desc">GPA ต่ำกว่า 3.00 หรือมีผลการเรียนต่ำกว่า 2.00 ตั้งแต่ 1 วิชาขึ้นไป</div>
+      <div class="tbl-wrap"><table id="tRisk2"><thead><tr><th>เลขที่</th><th>ชื่อ-นามสกุล</th><th>GPA</th><th>วิชาที่ต่ำกว่า 2.00</th><th>ติด 0</th><th>ระดับความเร่งด่วน</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- ============ REPORT ============ -->
+  <section class="view" id="v-report">
+    <div class="card" style="margin-bottom:20px">
+      <h3>ส่งออกรายงาน</h3><div class="desc">ดาวน์โหลดข้อมูลเป็นไฟล์ CSV (เปิดด้วย Excel ได้) หรือสั่งพิมพ์/บันทึกเป็น PDF</div>
+      <div class="tools" style="margin-top:8px">
+        <button class="btn" onclick="csvStudents()">⇩ ดาวน์โหลดรายชื่อ + GPA (CSV)</button>
+        <button class="btn" onclick="csvGrades()">⇩ ดาวน์โหลดผลการเรียนเต็มรูปแบบ (CSV)</button>
+        <button class="btn ghost" onclick="csvSubjects()">⇩ สรุปรายวิชา (CSV)</button>
+        <button class="btn ghost" onclick="window.print()">🖨 พิมพ์ / บันทึก PDF</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>บทสรุปสำหรับผู้บริหาร</h3><div class="desc">สรุปอัตโนมัติจากข้อมูลจริง</div>
+      <div id="exec" style="font-size:14px;line-height:2"></div>
+      <div class="note"><b>หมายเหตุ:</b> ชื่อรายวิชาถอดจากรหัสวิชาตามโครงสร้างหลักสูตรแกนกลาง · เพศประมาณการจากลำดับการจัดเรียงในแบบ ต.2ก (ชาย-หญิง) · ข้อมูลกิจกรรมพัฒนาผู้เรียนแสดงผล ผ/มผ ไม่มีค่าระดับผลการเรียน</div>
+    </div>
+  </section>
+</main>
+
+<div class="modal" id="md" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="modal-in">
+    <div class="modal-head"><div><h3 id="mName" style="font-size:19px"></h3><div class="desc" id="mSub" style="color:var(--muted);font-size:12.5px"></div></div>
+    <button class="close" onclick="document.getElementById('md').classList.remove('on')">✕</button></div>
+    <div class="mini" id="mMini"></div>
+    <div class="grid c2b">
+      <div><div style="font-weight:600;margin-bottom:10px;font-size:14px">ผลการเรียนรายกลุ่มสาระ</div><div class="chart-box" style="height:280px"><canvas id="chM"></canvas></div></div>
+      <div><div style="font-weight:600;margin-bottom:10px;font-size:14px">ผลการเรียนรายวิชา</div>
+      <div class="tbl-wrap" style="max-height:300px;overflow-y:auto"><table id="tM"><thead><tr><th>รหัส</th><th>วิชา</th><th>นก.</th><th>เกรด</th></tr></thead><tbody></tbody></table></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= DATA ================= */
+const SUBJ=[
+ {c:'ท23101',n:'ภาษาไทย',cr:1.5,g:'ภาษาไทย',t:'พื้นฐาน'},
+ {c:'ค23101',n:'คณิตศาสตร์',cr:1.5,g:'คณิตศาสตร์',t:'พื้นฐาน'},
+ {c:'ว23101',n:'วิทยาศาสตร์',cr:1.5,g:'วิทยาศาสตร์และเทคโนโลยี',t:'พื้นฐาน'},
+ {c:'ว23103',n:'วิทยาการคำนวณ',cr:0.5,g:'วิทยาศาสตร์และเทคโนโลยี',t:'พื้นฐาน'},
+ {c:'ส23101',n:'สังคมศึกษา',cr:1.5,g:'สังคมศึกษา ศาสนาฯ',t:'พื้นฐาน'},
+ {c:'ส23103',n:'ประวัติศาสตร์',cr:0.5,g:'สังคมศึกษา ศาสนาฯ',t:'พื้นฐาน'},
+ {c:'พ23101',n:'สุขศึกษา',cr:0.5,g:'สุขศึกษาและพลศึกษา',t:'พื้นฐาน'},
+ {c:'พ23103',n:'พลศึกษา',cr:0.5,g:'สุขศึกษาและพลศึกษา',t:'พื้นฐาน'},
+ {c:'ศ23101',n:'ทัศนศิลป์',cr:0.5,g:'ศิลปะ',t:'พื้นฐาน'},
+ {c:'ศ23103',n:'ดนตรี-นาฏศิลป์',cr:0.5,g:'ศิลปะ',t:'พื้นฐาน'},
+ {c:'ง23103',n:'การงานอาชีพ',cr:0.5,g:'การงานอาชีพ',t:'พื้นฐาน'},
+ {c:'อ23101',n:'ภาษาอังกฤษ',cr:1.5,g:'ภาษาต่างประเทศ',t:'พื้นฐาน'},
+ {c:'ค23201',n:'คณิตศาสตร์เพิ่มเติม 1',cr:1.0,g:'คณิตศาสตร์',t:'เพิ่มเติม'},
+ {c:'ค23203',n:'คณิตศาสตร์เพิ่มเติม 2',cr:1.0,g:'คณิตศาสตร์',t:'เพิ่มเติม'},
+ {c:'ว20211',n:'วิทยาศาสตร์เพิ่มเติม',cr:1.0,g:'วิทยาศาสตร์และเทคโนโลยี',t:'เพิ่มเติม'},
+ {c:'ส20205',n:'สังคมศึกษาเพิ่มเติม',cr:0.5,g:'สังคมศึกษา ศาสนาฯ',t:'เพิ่มเติม'},
+ {c:'ส23235',n:'หน้าที่พลเมืองเพิ่มเติม',cr:0.5,g:'สังคมศึกษา ศาสนาฯ',t:'เพิ่มเติม'},
+ {c:'อ23203',n:'ภาษาอังกฤษเพิ่มเติม',cr:1.0,g:'ภาษาต่างประเทศ',t:'เพิ่มเติม'}];
+
+const ACTS=[{c:'ก23901',h:20},{c:'ก23902',h:20},{c:'ก23903',h:20},{c:'ก23904',h:20},{c:'ก23905',h:15},{c:'ก23906',h:20},{c:'ก23907',h:20}];
+const A=['ก23901','ก23902','ก23904','ก23905','ก23907'];
+const B=['ก23901','ก23903','ก23904','ก23905','ก23907'];
+const C=['ก23901','ก23904','ก23905','ก23906','ก23907'];
+
+const STU=[
+ {no:1,sid:'27757',name:'ณัทพงศ์ อุตราภาส',sex:'ช',gpa:3.82,g:[4,4,4,4,4,3.5,4,4,4,4,4,3,4,4,4,4,4,3],a:A},
+ {no:2,sid:'27758',name:'ดลพัฒน์ ซุ่นอื้อ',sex:'ช',gpa:2.53,g:[2,2.5,1.5,2,2.5,2.5,3.5,4,4,4,3,2.5,2,2,1.5,4,4,3],a:A},
+ {no:3,sid:'27759',name:'ปัญจพล บุญจันทร์',sex:'ช',gpa:3.71,g:[4,3.5,3.5,4,4,4,4,4,4,4,4,4,2.5,3,4,4,4,3.5],a:A},
+ {no:4,sid:'27760',name:'ปัญญากร ทองมี',sex:'ช',gpa:3.50,g:[4,4,4,4,1,4,4,4,2.5,4,4,3.5,4,3.5,3.5,4,4,3],a:A},
+ {no:5,sid:'27761',name:'ปัญญากร บุญจันทร์',sex:'ช',gpa:3.82,g:[4,3.5,4,4,4,4,4,4,4,4,4,4,4,4,2.5,4,4,3.5],a:A},
+ {no:6,sid:'27762',name:'ภัทรดนัย วงษ์จันทร์',sex:'ช',gpa:3.70,g:[4,3.5,3.5,4,4,4,4,4,4,4,4,3.5,3,4,4,4,4,2.5],a:A},
+ {no:7,sid:'27763',name:'ภัทรนันท์ ณ นคร',sex:'ช',gpa:3.62,g:[3.5,4,3,4,3.5,4,4,4,4,4,4,3,4,4,3.5,4,4,3],a:A},
+ {no:8,sid:'27764',name:'ภูพิพัฒน์ สมบัติชัย',sex:'ช',gpa:3.82,g:[4,4,4,4,4,4,4,4,4,4,4,3.5,3,4,4,4,4,3],a:A},
+ {no:9,sid:'27765',name:'เมธพนธ์ เถาว์ราม',sex:'ช',gpa:3.54,g:[4,4,3,4,3,3.5,4,4,4,4,4,4,2.5,4,2.5,4,4,3],a:A},
+ {no:10,sid:'27766',name:'ศรัณย์ภัทร รังสิวรารักษ์',sex:'ช',gpa:4.00,g:[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],a:A},
+ {no:11,sid:'27767',name:'ศุภวิชญ์ รามณี',sex:'ช',gpa:3.62,g:[3.5,4,3.5,4,3.5,3.5,4,4,4,4,4,3,3.5,3.5,4,4,4,3],a:A},
+ {no:12,sid:'27768',name:'ณัฐธยาน์ หวามา',sex:'ญ',gpa:3.67,g:[4,3.5,4,4,4,3.5,4,4,4,4,4,2.5,3,4,4,4,4,3],a:B},
+ {no:13,sid:'27769',name:'ดวงกมลชนก ศิริเศรษฐพัฒน์',sex:'ญ',gpa:3.96,g:[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3.5],a:B},
+ {no:14,sid:'27770',name:'ธณัทอร บัวทอง',sex:'ญ',gpa:3.48,g:[3.5,3,3.5,4,4,3.5,4,4,4,4,4,4,3,3.5,2,4,4,2.5],a:B},
+ {no:15,sid:'27771',name:'ปริษา ขนานเภา',sex:'ญ',gpa:3.71,g:[4,2.5,3.5,4,4,4,4,4,4,4,4,4,3,4,3.5,4,4,4],a:B},
+ {no:16,sid:'27772',name:'ปัญชลิกา สุทธิช่วย',sex:'ญ',gpa:3.65,g:[4,2.5,3.5,4,4,4,4,4,4,4,4,4,3,3.5,4,4,4,3],a:C},
+ {no:17,sid:'27773',name:'ปุณิกา แก้วนวล',sex:'ญ',gpa:3.93,g:[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3],a:C},
+ {no:18,sid:'27775',name:'พัชราภรณ์ เวชประสิทธิ์',sex:'ญ',gpa:3.23,g:[4,3.5,3.5,4,4,3.5,4,4,4,4,4,3,3,1.5,0,4,4,2.5],a:B},
+ {no:19,sid:'27776',name:'พัชริดา เรืองขาว',sex:'ญ',gpa:3.76,g:[4,4,3.5,4,4,4,4,4,4,4,4,3,3.5,4,4,4,4,3],a:B},
+ {no:20,sid:'27777',name:'พัณณิตา พงษ์ไทย',sex:'ญ',gpa:3.82,g:[4,4,4,4,4,4,4,4,4,4,4,3.5,4,3.5,4,4,4,2.5],a:B},
+ {no:21,sid:'27778',name:'พิมพ์พิชชา ขุนทองจันทร์',sex:'ญ',gpa:3.57,g:[4,4,3.5,4,4,4,4,4,4,4,4,3,3.5,3,2.5,4,4,2.5],a:B},
+ {no:22,sid:'27779',name:'ภัคชาพิมญชุ์ สุตนพัฒน์',sex:'ญ',gpa:2.57,g:[3,2,3,4,1.5,3.5,4,4,3.5,4,4,2,2.5,1,0,4,4,3],a:B},
+ {no:23,sid:'27780',name:'ภัทรธิดา ไสลรวม',sex:'ญ',gpa:4.00,g:[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],a:B},
+ {no:24,sid:'27781',name:'ยูฮาร่า โอรพันธ์',sex:'ญ',gpa:3.51,g:[4,3,4,4,4,4,4,4,4,4,4,2.5,3,4,2,4,4,3],a:B},
+ {no:25,sid:'27782',name:'รวิสรา แคล้วอ้อม',sex:'ญ',gpa:3.43,g:[4,2.5,4,4,3.5,4,4,4,4,4,4,4,3,2.5,1.5,4,4,3],a:C},
+ {no:26,sid:'27783',name:'รัตนาวลี วงศ์สุริยามาศ',sex:'ญ',gpa:3.39,g:[4,3.5,4,4,3,4,4,4,3.5,4,4,2.5,3,4,1.5,4,4,2.5],a:B},
+ {no:27,sid:'27784',name:'สุพิชชา มาศสุวรรณ์',sex:'ญ',gpa:3.35,g:[3.5,3,3.5,4,3,4,4,4,4,4,4,2.5,3,3,4,4,4,2.5],a:B},
+ {no:28,sid:'27785',name:'อรุณรัตน์ ชัยวัฒนากุล',sex:'ญ',gpa:3.93,g:[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3],a:B},
+ {no:29,sid:'27918',name:'อารดา ผกากรอง',sex:'ญ',gpa:3.45,g:[4,3.5,3.5,4,4,4,4,4,4,4,4,2.5,3,2,3.5,4,4,2.5],a:C}];
+
+/* ============ HELPERS ============ */
+const CR=16.0, N=STU.length;
+const fx=(v,d=2)=>Number(v).toFixed(d);
+const avg=a=>a.reduce((s,x)=>s+x,0)/a.length;
+const rank=[...STU].sort((a,b)=>b.gpa-a.gpa).map(s=>s.sid);
+STU.forEach(s=>s.rank=rank.indexOf(s.sid)+1);
+const allG=STU.flatMap(s=>s.g);
+const classAvg=avg(STU.map(s=>s.gpa));
+const GCOL={4:'#05cd99',3.5:'#39b8ff',3:'#4318ff',2.5:'#8a6bff',2:'#ffb547',1.5:'#ff8a3d',1:'#ff6b6b',0:'#ee5d50'};
+function lvl(v){ if(v>=3.5)return['ดีเยี่ยม','b-green']; if(v>=3)return['ดีมาก','b-blue']; if(v>=2.5)return['ดี','b-orange']; if(v>=2)return['พอใช้','b-orange']; return['ต้องปรับปรุง','b-red'];}
+function barc(v){ return v>=3.5?'#05cd99':v>=3?'#4318ff':v>=2.5?'#ffb547':'#ee5d50';}
+Chart.defaults.font.family="'Noto Sans Thai',sans-serif";
+Chart.defaults.color='#a3aed0';
+const CH={};
+function mk(id,cfg){ if(CH[id])CH[id].destroy(); CH[id]=new Chart(document.getElementById(id),cfg); }
+
+/* subject stats */
+const sStat=SUBJ.map((s,i)=>{const col=STU.map(x=>x.g[i]);
+ return{...s,avg:avg(col),full:col.filter(v=>v===4).length,low:col.filter(v=>v<2).length,zero:col.filter(v=>v===0).length,col};});
+/* area stats */
+const AREAS=[...new Set(SUBJ.map(s=>s.g))];
+const aStat=AREAS.map(a=>{const idx=SUBJ.map((s,i)=>s.g===a?i:-1).filter(i=>i>=0);
+ const vals=STU.flatMap(s=>idx.map(i=>s.g[i]));
+ return{a,n:idx.length,cr:idx.reduce((t,i)=>t+SUBJ[i].cr,0),avg:avg(vals),full:vals.filter(v=>v===4).length/vals.length*100,idx};}).sort((x,y)=>y.avg-x.avg);
+
+/* ============ NAV ============ */
+const TITLES={overview:['ภาพรวมห้องเรียน','หน้าแรก / ภาพรวม'],subjects:['วิเคราะห์รายวิชา','หน้าแรก / รายวิชา'],areas:['กลุ่มสาระการเรียนรู้','หน้าแรก / กลุ่มสาระ'],students:['นักเรียนรายบุคคล','หน้าแรก / นักเรียน'],activity:['กิจกรรมพัฒนาผู้เรียน','หน้าแรก / กิจกรรม'],risk:['กลุ่มเสี่ยง / ต้องดูแล','หน้าแรก / กลุ่มเสี่ยง'],report:['รายงาน & ส่งออก','หน้าแรก / รายงาน']};
+document.querySelectorAll('#menu button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#menu button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  const v=b.dataset.v; document.getElementById('v-'+v).classList.add('on');
+  document.getElementById('vTitle').textContent=TITLES[v][0];
+  document.getElementById('vCrumb').textContent=TITLES[v][1];
+  document.getElementById('sb').classList.remove('open');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(v==='overview')drawOverview(); if(v==='areas')drawAreas(); if(v==='activity')drawAct();
+});
+
+/* ============ OVERVIEW ============ */
+function drawOverview(){
+ const top=[...STU].sort((a,b)=>b.gpa-a.gpa);
+ document.getElementById('kpis').innerHTML=[
+  ['#eceaff','📊','GPA เฉลี่ยห้อง',fx(classAvg),'จากคะแนนเต็ม 4.00'],
+  ['#e6faf5','🏆','GPA สูงสุด',fx(top[0].gpa),top[0].name],
+  ['#ffeceb','📉','GPA ต่ำสุด',fx(top[N-1].gpa),top[N-1].name],
+  ['#e8f6ff','✅','GPA ≥ 3.50',STU.filter(s=>s.gpa>=3.5).length+' คน',fx(STU.filter(s=>s.gpa>=3.5).length/N*100,1)+'% ของห้อง'],
+  ['#fff5e5','⚠️','ผลการเรียนต่ำกว่า 2',allG.filter(v=>v<2).length+' รายการ','จาก '+allG.length+' รายการ'],
+  ['#eef1f8','🎓','หน่วยกิตรวม/คน',fx(CR,1),'พื้นฐาน 11.0 + เพิ่มเติม 5.0']
+ ].map(k=>`<div class="kpi"><div class="ic" style="background:${k[0]}">${k[1]}</div><div><small>${k[2]}</small><b>${k[3]}</b><span class="sub">${k[4]}</span></div></div>`).join('');
+
+ const bands=['4.00','3.50-3.99','3.00-3.49','2.50-2.99','ต่ำกว่า 2.50'];
+ const bc=[STU.filter(s=>s.gpa===4).length,STU.filter(s=>s.gpa>=3.5&&s.gpa<4).length,STU.filter(s=>s.gpa>=3&&s.gpa<3.5).length,STU.filter(s=>s.gpa>=2.5&&s.gpa<3).length,STU.filter(s=>s.gpa<2.5).length];
+ mk('ch1',{type:'bar',data:{labels:bands,datasets:[{data:bc,backgroundColor:['#05cd99','#39b8ff','#4318ff','#ffb547','#ee5d50'],borderRadius:10,barThickness:46}]},
+  options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+' คน ('+fx(c.raw/N*100,1)+'%)'}}},scales:{y:{beginAtZero:true,ticks:{stepSize:2},grid:{color:'#f0f3fa'}},x:{grid:{display:false}}},maintainAspectRatio:false}});
+
+ const gl=[4,3.5,3,2.5,2,1.5,1,0];
+ mk('ch2',{type:'doughnut',data:{labels:gl.map(g=>'เกรด '+fx(g,1)),datasets:[{data:gl.map(g=>allG.filter(v=>v===g).length),backgroundColor:gl.map(g=>GCOL[g]),borderWidth:2,borderColor:'#fff'}]},
+  options:{cutout:'62%',plugins:{legend:{position:'right',labels:{boxWidth:11,padding:11,font:{size:12}}},tooltip:{callbacks:{label:c=>c.label+': '+c.raw+' รายการ ('+fx(c.raw/allG.length*100,1)+'%)'}}},maintainAspectRatio:false}});
+
+ mk('ch3',{type:'bar',data:{labels:top.slice(0,10).map(s=>s.name.split(' ')[0]),datasets:[{data:top.slice(0,10).map(s=>s.gpa),backgroundColor:top.slice(0,10).map(s=>barc(s.gpa)),borderRadius:8,barThickness:17}]},
+  options:{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{title:c=>top[c[0].dataIndex].name,label:c=>'GPA '+fx(c.raw)}}},scales:{x:{min:3,max:4,grid:{color:'#f0f3fa'}},y:{grid:{display:false}}},maintainAspectRatio:false}});
+
+ mk('ch4',{type:'bar',data:{labels:aStat.map(a=>a.a.replace(' ศาสนาฯ','').replace('และเทคโนโลยี','')),datasets:[{data:aStat.map(a=>a.avg),backgroundColor:aStat.map(a=>barc(a.avg)),borderRadius:8,barThickness:17}]},
+  options:{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'เฉลี่ย '+fx(c.raw)}}},scales:{x:{min:2.5,max:4,grid:{color:'#f0f3fa'}},y:{grid:{display:false}}},maintainAspectRatio:false}});
+
+ const ss=[...sStat].sort((a,b)=>b.avg-a.avg);
+ mk('ch5',{type:'bar',data:{labels:ss.map(s=>s.c+' '+s.n),datasets:[{data:ss.map(s=>s.avg),backgroundColor:ss.map(s=>barc(s.avg)),borderRadius:7,barThickness:15}]},
+  options:{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'เฉลี่ย '+fx(c.raw)+' | หน่วยกิต '+fx(ss[c.dataIndex].cr,1)}}},scales:{x:{min:2,max:4,grid:{color:'#f0f3fa'}},y:{grid:{display:false},ticks:{font:{size:11.5}}}},maintainAspectRatio:false}});
+}
+
+/* ============ SUBJECTS ============ */
+let subSort={k:'avg',d:1};
+document.getElementById('fArea').innerHTML+=AREAS.map(a=>`<option>${a}</option>`).join('');
+function renderSub(){
+ const fa=fArea.value,ft=fType.value;
+ let rows=sStat.filter(s=>(!fa||s.g===fa)&&(!ft||s.t===ft));
+ rows.sort((a,b)=>{const x=a[subSort.k],y=b[subSort.k];return (typeof x==='string'?x.localeCompare(y,'th'):x-y)*subSort.d;});
+ document.querySelector('#tSub tbody').innerHTML=rows.map(s=>{const L=lvl(s.avg);
+  return `<tr onclick="subChart('${s.c}')"><td><b>${s.c}</b></td><td>${s.n}</td><td>${s.g}</td>
+  <td><span class="badge ${s.t==='พื้นฐาน'?'b-blue':'b-gray'}">${s.t}</span></td><td>${fx(s.cr,1)}</td>
+  <td><b>${fx(s.avg)}</b></td><td><div class="bar"><i style="width:${s.avg/4*100}%;background:${barc(s.avg)}"></i></div></td>
+  <td>${s.full} <span style="color:#a3aed0;font-size:11px">(${fx(s.full/N*100,0)}%)</span></td>
+  <td>${s.low?'<span class="badge b-orange">'+s.low+'</span>':'—'}</td>
+  <td>${s.zero?'<span class="badge b-red">'+s.zero+'</span>':'—'}</td></tr>`;}).join('');
+}
+document.querySelectorAll('#tSub th[data-k]').forEach(th=>th.onclick=()=>{const k=th.dataset.k;subSort.d=(subSort.k===k)?-subSort.d:1;subSort.k=k;renderSub();});
+fArea.onchange=fType.onchange=renderSub;
+function subChart(code){
+ const s=sStat.find(x=>x.c===code); const gl=[4,3.5,3,2.5,2,1.5,1,0];
+ document.getElementById('subTitle').textContent=`การกระจายเกรด — ${s.c} ${s.n} (เฉลี่ย ${fx(s.avg)})`;
+ mk('ch6',{type:'bar',data:{labels:gl.map(g=>fx(g,1)),datasets:[{label:'จำนวนนักเรียน',data:gl.map(g=>s.col.filter(v=>v===g).length),backgroundColor:gl.map(g=>GCOL[g]),borderRadius:9,barThickness:42}]},
+  options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+' คน'}}},scales:{y:{beginAtZero:true,grid:{color:'#f0f3fa'}},x:{grid:{display:false}}},maintainAspectRatio:false}});
+ document.getElementById('ch6').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+/* ============ AREAS ============ */
+function drawAreas(){
+ const top10=[...STU].sort((a,b)=>b.gpa-a.gpa).slice(0,10), bot5=[...STU].sort((a,b)=>a.gpa-b.gpa).slice(0,5);
+ const gAvg=(list,idx)=>avg(list.flatMap(s=>idx.map(i=>s.g[i])));
+ mk('ch7',{type:'radar',data:{labels:aStat.map(a=>a.a.replace(' ศาสนาฯ','').replace('และเทคโนโลยี','')),
+  datasets:[{label:'ทั้งห้อง',data:aStat.map(a=>gAvg(STU,a.idx)),borderColor:'#4318ff',backgroundColor:'rgba(67,24,255,.14)',pointBackgroundColor:'#4318ff'},
+   {label:'Top 10',data:aStat.map(a=>gAvg(top10,a.idx)),borderColor:'#05cd99',backgroundColor:'rgba(5,205,153,.10)',pointBackgroundColor:'#05cd99'},
+   {label:'Bottom 5',data:aStat.map(a=>gAvg(bot5,a.idx)),borderColor:'#ee5d50',backgroundColor:'rgba(238,93,80,.10)',pointBackgroundColor:'#ee5d50'}]},
+  options:{plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:14}}},scales:{r:{min:2,max:4,ticks:{stepSize:.5,backdropColor:'transparent'},pointLabels:{font:{size:11.5}},grid:{color:'#e9edf7'}}},maintainAspectRatio:false}});
+ mk('ch8',{type:'doughnut',data:{labels:aStat.map(a=>a.a),datasets:[{data:aStat.map(a=>a.cr),backgroundColor:['#4318ff','#05cd99','#39b8ff','#ffb547','#6c4bff','#ee5d50','#00c9a7','#a3aed0'],borderWidth:2,borderColor:'#fff'}]},
+  options:{cutout:'58%',plugins:{legend:{position:'right',labels:{boxWidth:11,padding:10,font:{size:11.5}}},tooltip:{callbacks:{label:c=>c.label+': '+fx(c.raw,1)+' นก. ('+fx(c.raw/CR*100,1)+'%)'}}},maintainAspectRatio:false}});
+ document.querySelector('#tArea tbody').innerHTML=aStat.map(a=>{const L=lvl(a.avg);
+  return `<tr><td><b>${a.a}</b></td><td>${a.n}</td><td>${fx(a.cr,1)}</td><td><b>${fx(a.avg)}</b></td>
+  <td><span class="badge ${L[1]}">${L[0]}</span></td>
+  <td><div style="display:flex;align-items:center;gap:8px"><div class="bar"><i style="width:${a.full}%;background:${barc(a.avg)}"></i></div>${fx(a.full,1)}%</div></td></tr>`;}).join('');
+}
+
+/* ============ STUDENTS ============ */
+let stuSort={k:'no',d:1};
+function renderStu(){
+ const q=document.getElementById('q').value.trim(),b=fBand.value,sx=fSex.value;
+ let rows=STU.filter(s=>(!q||s.name.includes(q)||s.sid.includes(q))&&(!sx||s.sex===sx)&&
+  (!b|| (b==='4'&&s.gpa===4)||(b==='a'&&s.gpa>=3.5&&s.gpa<4)||(b==='b'&&s.gpa>=3&&s.gpa<3.5)||(b==='c'&&s.gpa<3)));
+ rows.sort((a,b2)=>{const x=a[stuSort.k],y=b2[stuSort.k];return (typeof x==='string'?x.localeCompare(y,'th'):x-y)*stuSort.d;});
+ document.querySelector('#tStu tbody').innerHTML=rows.length?rows.map(s=>{const L=lvl(s.gpa);
+  return `<tr onclick="openStu('${s.sid}')"><td>${s.no}</td><td>${s.sid}</td><td><b>${s.name}</b></td>
+  <td><span class="badge ${s.sex==='ช'?'b-blue':'b-orange'}">${s.sex==='ช'?'ชาย':'หญิง'}</span></td>
+  <td>${fx(CR,1)}</td><td><b style="color:${barc(s.gpa)}">${fx(s.gpa)}</b></td>
+  <td><span class="badge ${L[1]}">${L[0]}</span></td>
+  <td><div class="bar"><i style="width:${s.gpa/4*100}%;background:${barc(s.gpa)}"></i></div></td>
+  <td>${s.rank<=3?'🏅 ':''}${s.rank}</td></tr>`;}).join(''):'<tr><td colspan="9" style="text-align:center;color:#a3aed0;padding:26px">ไม่พบข้อมูลที่ค้นหา</td></tr>';
+}
+document.querySelectorAll('#tStu th[data-k]').forEach(th=>th.onclick=()=>{const k=th.dataset.k;stuSort.d=(stuSort.k===k)?-stuSort.d:1;stuSort.k=k;renderStu();});
+document.getElementById('q').oninput=fBand.onchange=fSex.onchange=renderStu;
+
+function openStu(sid){
+ const s=STU.find(x=>x.sid===sid); const L=lvl(s.gpa);
+ mName.textContent=s.name;
+ mSub.textContent=`เลขที่ ${s.no} · เลขประจำตัว ${s.sid} · ม.3/11 · ภาคเรียนที่ 1/2569`;
+ const low=s.g.filter(v=>v<2).length, full=s.g.filter(v=>v===4).length;
+ mMini.innerHTML=[['GPA',fx(s.gpa)],['อันดับในห้อง',s.rank+' / '+N],['หน่วยกิต',fx(CR,1)],['ได้เกรด 4',full+' วิชา'],['ต่ำกว่า 2',low+' วิชา'],['กิจกรรม',s.a.length+' ผ่าน']]
+  .map(m=>`<div><small>${m[0]}</small><b>${m[1]}</b></div>`).join('');
+ mk('chM',{type:'radar',data:{labels:aStat.map(a=>a.a.replace(' ศาสนาฯ','').replace('และเทคโนโลยี','')),
+  datasets:[{label:s.name.split(' ')[0],data:aStat.map(a=>avg(a.idx.map(i=>s.g[i]))),borderColor:'#4318ff',backgroundColor:'rgba(67,24,255,.15)',pointBackgroundColor:'#4318ff'},
+   {label:'ค่าเฉลี่ยห้อง',data:aStat.map(a=>a.avg),borderColor:'#a3aed0',backgroundColor:'rgba(163,174,208,.10)',borderDash:[5,4],pointBackgroundColor:'#a3aed0'}]},
+  options:{plugins:{legend:{position:'bottom',labels:{boxWidth:12}}},scales:{r:{min:0,max:4,ticks:{stepSize:1,backdropColor:'transparent'},pointLabels:{font:{size:10.5}},grid:{color:'#e9edf7'}}},maintainAspectRatio:false}});
+ document.querySelector('#tM tbody').innerHTML=SUBJ.map((sub,i)=>{const v=s.g[i];
+  return `<tr><td>${sub.c}</td><td>${sub.n}</td><td>${fx(sub.cr,1)}</td>
+  <td><span class="badge" style="background:${GCOL[v]}22;color:${GCOL[v]}">${fx(v,1)}</span></td></tr>`;}).join('')
+  + ACTS.filter(a=>s.a.includes(a.c)).map(a=>`<tr><td>${a.c}</td><td style="color:#a3aed0">กิจกรรมพัฒนาผู้เรียน</td><td>${fx(a.h,1)} ชม.</td><td><span class="badge b-green">ผ</span></td></tr>`).join('');
+ document.getElementById('md').classList.add('on');
+}
+
+/* ============ ACTIVITY ============ */
+function drawAct(){
+ const cnt=ACTS.map(a=>({...a,n:STU.filter(s=>s.a.includes(a.c)).length}));
+ document.getElementById('actKpi').innerHTML=[
+  ['#eceaff','✚','กิจกรรมทั้งหมด',ACTS.length+' กิจกรรม','ตามหลักสูตร ม.3'],
+  ['#e6faf5','✅','อัตราผ่าน','100%','29 / 29 คน'],
+  ['#e8f6ff','⏱','ชั่วโมงรวมต่อคน','95 ชม.','เฉลี่ย 5 กิจกรรม/คน'],
+  ['#fff5e5','⚠','ไม่ผ่าน (มผ)','0 คน','ไม่มีนักเรียนตกกิจกรรม']
+ ].map(k=>`<div class="kpi"><div class="ic" style="background:${k[0]}">${k[1]}</div><div><small>${k[2]}</small><b>${k[3]}</b><span class="sub">${k[4]}</span></div></div>`).join('');
+ mk('ch9',{type:'bar',data:{labels:cnt.map(a=>a.c),datasets:[{data:cnt.map(a=>a.n),backgroundColor:cnt.map(a=>a.n===N?'#05cd99':'#4318ff'),borderRadius:9,barThickness:34}]},
+  options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+' คน ('+fx(c.raw/N*100,1)+'%)'}}},scales:{y:{beginAtZero:true,max:30,grid:{color:'#f0f3fa'}},x:{grid:{display:false}}},maintainAspectRatio:false}});
+ document.querySelector('#tAct tbody').innerHTML=cnt.map(a=>`<tr><td><b>${a.c}</b></td><td>${fx(a.h,1)} ชม.</td><td>${a.n} คน</td><td>${a.n} คน</td><td><span class="badge b-green">ผ่าน 100%</span></td></tr>`).join('');
+}
+
+/* ============ RISK ============ */
+function drawRisk(){
+ const items=[]; STU.forEach(s=>s.g.forEach((v,i)=>{if(v<2)items.push({s,sub:SUBJ[i],v});}));
+ items.sort((a,b)=>a.v-b.v);
+ const risky=STU.filter(s=>s.gpa<3||s.g.some(v=>v<2));
+ document.getElementById('riskKpi').innerHTML=[
+  ['#ffeceb','⚠️','นักเรียนกลุ่มเสี่ยง',risky.length+' คน',fx(risky.length/N*100,1)+'% ของห้อง'],
+  ['#fff5e5','📕','ผลการเรียนต่ำกว่า 2.00',items.length+' รายการ','จาก '+allG.length+' รายการ'],
+  ['#ffeceb','🚫','ติด 0',allG.filter(v=>v===0).length+' รายการ','ทั้งหมดอยู่ในวิชา ว20211'],
+  ['#e8f6ff','🎯','วิชาที่ควรเร่งแก้','ว20211','ค่าเฉลี่ยต่ำสุดของห้อง']
+ ].map(k=>`<div class="kpi"><div class="ic" style="background:${k[0]}">${k[1]}</div><div><small>${k[2]}</small><b style="font-size:21px">${k[3]}</b><span class="sub">${k[4]}</span></div></div>`).join('');
+ document.querySelector('#tRisk tbody').innerHTML=items.map(it=>`<tr onclick="openStu('${it.s.sid}')">
+  <td>${it.s.no}</td><td><b>${it.s.name}</b></td><td>${it.sub.c}</td><td>${it.sub.n}</td><td>${it.sub.g}</td>
+  <td><span class="badge" style="background:${GCOL[it.v]}22;color:${GCOL[it.v]}"><b>${fx(it.v,1)}</b></span></td>
+  <td><span class="badge ${it.v===0?'b-red':'b-orange'}">${it.v===0?'ติด 0 — ต้องซ่อม':'ต้องปรับปรุง'}</span></td></tr>`).join('');
+ document.querySelector('#tRisk2 tbody').innerHTML=risky.sort((a,b)=>a.gpa-b.gpa).map(s=>{
+  const low=s.g.filter(v=>v<2).length,z=s.g.filter(v=>v===0).length;
+  const u=z>0?['สูงมาก','b-red']:(s.gpa<3?['สูง','b-red']:['ปานกลาง','b-orange']);
+  return `<tr onclick="openStu('${s.sid}')"><td>${s.no}</td><td><b>${s.name}</b></td>
+  <td><b style="color:${barc(s.gpa)}">${fx(s.gpa)}</b></td><td>${low} วิชา</td><td>${z?'<span class="badge b-red">'+z+'</span>':'—'}</td>
+  <td><span class="badge ${u[1]}">${u[0]}</span></td></tr>`;}).join('');
+}
+
+/* ============ REPORT ============ */
+function dl(name,rows){
+ const csv='\ufeff'+rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=name;a.click();
+}
+function csvStudents(){dl('ม3-11_รายชื่อ_GPA.csv',[['เลขที่','เลขประจำตัว','ชื่อ-นามสกุล','เพศ','หน่วยกิต','GPA','อันดับ'],...STU.map(s=>[s.no,s.sid,s.name,s.sex==='ช'?'ชาย':'หญิง',fx(CR,1),fx(s.gpa),s.rank])]);}
+function csvGrades(){dl('ม3-11_ผลการเรียนรายวิชา.csv',[['เลขที่','เลขประจำตัว','ชื่อ-นามสกุล',...SUBJ.map(s=>s.c+' '+s.n),'GPA'],...STU.map(s=>[s.no,s.sid,s.name,...s.g.map(v=>fx(v,1)),fx(s.gpa)])]);}
+function csvSubjects(){dl('ม3-11_สรุปรายวิชา.csv',[['รหัสวิชา','ชื่อวิชา','กลุ่มสาระ','ประเภท','หน่วยกิต','ค่าเฉลี่ย','ได้ 4 (คน)','ต่ำกว่า 2 (คน)','ติด 0'],...sStat.map(s=>[s.c,s.n,s.g,s.t,fx(s.cr,1),fx(s.avg),s.full,s.low,s.zero])]);}
+
+const best=[...sStat].sort((a,b)=>b.avg-a.avg)[0], worst=[...sStat].sort((a,b)=>a.avg-b.avg)[0];
+const topS=[...STU].sort((a,b)=>b.gpa-a.gpa)[0];
+document.getElementById('exec').innerHTML=`
+<b>1.</b> ห้อง ม.3/11 มีนักเรียน <b>${N} คน</b> (ชาย ${STU.filter(s=>s.sex==='ช').length} · หญิง ${STU.filter(s=>s.sex==='ญ').length}) ลงทะเบียน <b>${SUBJ.length} รายวิชา รวม ${fx(CR,1)} หน่วยกิต</b><br>
+<b>2.</b> ผลการเรียนเฉลี่ยของห้องอยู่ที่ <b>${fx(classAvg)}</b> อยู่ในเกณฑ์ <b>${lvl(classAvg)[0]}</b> โดยมี <b>${STU.filter(s=>s.gpa>=3.5).length} คน (${fx(STU.filter(s=>s.gpa>=3.5).length/N*100,1)}%)</b> ได้ GPA ตั้งแต่ 3.50 ขึ้นไป<br>
+<b>3.</b> นักเรียนที่มีผลการเรียนสูงสุดคือ <b>${topS.name}</b> (GPA ${fx(topS.gpa)}) และมีผู้ได้ GPA เต็ม 4.00 จำนวน <b>${STU.filter(s=>s.gpa===4).length} คน</b><br>
+<b>4.</b> วิชาที่มีค่าเฉลี่ยสูงสุด: <b>${best.c} ${best.n}</b> (${fx(best.avg)}) · วิชาที่ต่ำสุดและควรเร่งพัฒนา: <b>${worst.c} ${worst.n}</b> (${fx(worst.avg)})<br>
+<b>5.</b> พบผลการเรียนต่ำกว่า 2.00 จำนวน <b>${allG.filter(v=>v<2).length} รายการ</b> และติด 0 จำนวน <b>${allG.filter(v=>v===0).length} รายการ</b> ทั้งหมดอยู่ในวิชา ว20211<br>
+<b>6.</b> กิจกรรมพัฒนาผู้เรียนผ่านเกณฑ์ <b>100%</b> ทุกคน ไม่มีผู้ติด "มผ"<br>
+<b>ข้อเสนอเชิงนโยบาย:</b> จัดสอนเสริม/ซ่อมเสริมวิชา <b>ว20211</b> และ <b>ค23203</b> เป็นลำดับแรก พร้อมติดตามนักเรียนกลุ่มเสี่ยง ${STU.filter(s=>s.gpa<3||s.g.some(v=>v<2)).length} คนเป็นรายบุคคล`;
+
+/* init */
+drawOverview();renderSub();subChart('ว20211');drawAreas();renderStu();drawAct();drawRisk();
+</script>
+</body>
+</html>
